@@ -1,0 +1,56 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - "**"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+        dune-workspace:
+          - "5.4"
+          - "5.3"
+          - "5.2"
+          - "4.14"
+
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Environment setup
+        run: |
+          echo "DUNE_WORKSPACE=$PWD/dune-workspace-${{ matrix.dune-workspace }}" >> "$GITHUB_ENV"
+          if [ "${{ matrix.dune-workspace }}" = "v0.13" ]; then
+            echo "PACKAGES=feather,feather_async" >> "$GITHUB_ENV"
+          else
+            echo "PACKAGES=feather,feather_async,feather_tests" >> "$GITHUB_ENV"
+          fi
+
+      - name: Setup Dune
+        uses: mbarbin/setup-dune@ae2985bcdedc6fb24e5743d6f9dace9cf262b41c # v2.0.0+patch-4
+        with:
+          version: "3.21.0"
+          workspace: ${{ env.DUNE_WORKSPACE }}
+          cache-prefix: ${{ matrix.dune-workspace }}
+          only-packages: ${{ env.PACKAGES }}
+          steps: install-dune enable-pkg lazy-update-depexts install-gpatch install-depexts
+
+      - name: Build & Run tests
+        run: dune build @all @runtest --only-packages=${{ env.PACKAGES }}
