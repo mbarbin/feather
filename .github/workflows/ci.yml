@@ -39,7 +39,7 @@ jobs:
       - name: Environment setup
         run: |
           echo "DUNE_WORKSPACE=$PWD/dune-workspace-${{ matrix.dune-workspace }}" >> "$GITHUB_ENV"
-          if [ "${{ matrix.dune-workspace }}" = "v0.13" ]; then
+          if [ "${{ matrix.dune-workspace }}" = "v0.13" ] || [ "${{ matrix.dune-workspace }}" = "v0.14" ]; then
             echo "PACKAGES=feather,feather_async" >> "$GITHUB_ENV"
           else
             echo "PACKAGES=feather,feather_async,feather_tests" >> "$GITHUB_ENV"
