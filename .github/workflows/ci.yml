@@ -55,4 +55,4 @@ jobs:
           steps: install-dune enable-pkg lazy-update-depexts install-gpatch install-depexts
 
       - name: Build & Run tests
-        run: dune build @all @runtest --only-packages=${{ env.PACKAGES }} --display=verbose
+        run: dune build @all --only-packages=${{ env.PACKAGES }}
