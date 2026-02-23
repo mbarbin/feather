@@ -1,5 +1,5 @@
-(* We bind [Mutex] in a way that satisfies all supported OCaml and Base versions:
-   It must be bound to either [threads.Mutex] or [Stdlib.Mutex]. *)
+(* We bind [Mutex] in a way that satisfies all supported OCaml and Base
+   versions: It must be bound to either [threads.Mutex] or [Stdlib.Mutex]. *)
 module Caml_mutex = Mutex
 open Base
 open Stdio
@@ -67,7 +67,7 @@ module State : sig
 end = struct
   let pid = Unix.getpid ()
 
-  (* Not sure if this mutex is helpful but better safe than sorry?  *)
+  (* Not sure if this mutex is helpful but better safe than sorry? *)
   let background_process_mutex = Mutex.create ()
   let background_processes : Background_process.packed list ref = ref []
 
@@ -137,9 +137,9 @@ let resolve_in_path_exn prog =
   | None -> failwith (Printf.sprintf "no program in path %s" prog)
   | Some prog -> prog
 
-(* We need a way to iterate over the lines of a file descriptor,
-   so that when it is closed, we can stop iterating. This is NOT the case for iterating
-   over the lines of an in_channel formed from [Unix.in_channel_of_descr], which will not
+(* We need a way to iterate over the lines of a file descriptor, so that when it
+   is closed, we can stop iterating. This is NOT the case for iterating over the
+   lines of an in_channel formed from [Unix.in_channel_of_descr], which will not
    be closed when the file descriptor is. *)
 let fd_iter_lines ~f fd =
   let buf = Bytes.create 1 in
@@ -200,7 +200,7 @@ let exec prog args ctx =
     Spawn.spawn ~cwd ?env ~stdin:ctx.stdin_reader ~stdout:ctx.stdout_writer
       ~stderr:ctx.stderr_writer ~prog ~argv ()
   in
-  (* Wait for process and return its status  *)
+  (* Wait for process and return its status *)
   let status =
     match snd (Unix.waitpid [] pid) with
     | WEXITED s -> s
@@ -367,9 +367,9 @@ let everything = Collect_everything
 let collect_into_string_sync fd =
   let out = In_channel.input_all (Unix.in_channel_of_descr fd) in
   Unix.close fd;
-  (* This might be controversial. The alternative is to export a [trim]
-     command, that makes it easy to do this manually, but I think this
-     is actually less surprising than keeping the newline. *)
+  (* This might be controversial. The alternative is to export a [trim] command,
+     that makes it easy to do this manually, but I think this is actually less
+     surprising than keeping the newline. *)
   match String.chop_suffix out ~suffix:"\n" with
   | Some trimmed -> trimmed
   | None -> out
@@ -557,21 +557,13 @@ let cp src dst = process "cp" [ src; dst ]
 let cp_r src dst = process "cp" [ "-r"; src; dst ]
 let mv src dst = process "mv" [ src; dst ]
 
-(* TODO: Refactor to not spawn a process. Potentially applicable to:
-   - pwd
-   - cp
-   - mv
-   - ls
-   - echo
+(* TODO: Refactor to not spawn a process. Potentially applicable to: - pwd - cp
+   - mv - ls - echo
 
-   And probably possible but harder:
-   - sort
-   - uniq
-   - shuf
+   And probably possible but harder: - sort - uniq - shuf
 
    N.B if this does end up getting implemented, make sure that [debug] still
-   works.
-*)
+   works. *)
 let pwd = process "pwd" []
 
 let sed ?(g = true) pattern replace =
